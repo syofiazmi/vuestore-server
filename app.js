@@ -6,15 +6,17 @@ const PORT = process.env.PORT || 8000
 
 app.use(cors())
 app.use(express.json())
-app.use(express.urlencoded({ extended: true}))
-
+app.use(express.urlencoded({ extended: true }))
 
 app.use('/img', express.static(path.join(__dirname, './public/img')))
 
 
 const db = require('./app/models')
+
+const database = process.env.MONGO_URI || db.url
+
 db.mongoose
-    .connect(db.url, {
+    .connect(database, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
@@ -24,6 +26,11 @@ db.mongoose
         console.log("Cannot connect to database!", err)
         process.exit()
     })
+
+db.mongoose.connection.on('connected', () => {
+    console.log(`${database} terkonkesi...`)
+})
+
 
 
 app.get('/', (req, res) => {
